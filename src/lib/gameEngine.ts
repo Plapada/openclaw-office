@@ -22,7 +22,7 @@ export class GameEngine {
     return this.agents;
   }
 
-  update(_deltaTime: number) {
+  update() {
     this.agents.forEach(agent => {
       // Random status changes
       if (Math.random() < 0.005) {
