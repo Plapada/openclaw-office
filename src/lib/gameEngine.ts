@@ -1,14 +1,5 @@
 import { Agent, AgentStatus, TILE_SIZE } from './types';
 
-const STATUS_FRAMES: Record<AgentStatus, number> = {
-  idle: 4,
-  working: 4,
-  thinking: 4,
-  waiting: 2,
-  typing: 4,
-  reading: 4,
-};
-
 export class GameEngine {
   private agents: Agent[] = [];
   private lastTime: number = 0;
@@ -31,7 +22,7 @@ export class GameEngine {
     return this.agents;
   }
 
-  update(deltaTime: number) {
+  update(_deltaTime: number) {
     this.agents.forEach(agent => {
       // Random status changes
       if (Math.random() < 0.005) {

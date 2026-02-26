@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 
 interface Agent {
   id: string;
@@ -18,7 +18,7 @@ const DEMO_AGENTS: Agent[] = [
 ];
 
 export default function AgentSidebar() {
-  const [agents, setAgents] = useState(DEMO_AGENTS);
+  const [agents] = useState(DEMO_AGENTS);
 
   const getStatusColor = (status: string) => {
     switch (status) {
