@@ -20,7 +20,7 @@ export default function OfficeCanvas() {
     let animationId: number;
     
 
-    const gameLoop = (time: number) => {
+    const gameLoop = () => {
       
       
 
