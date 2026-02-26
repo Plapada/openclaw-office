@@ -5,8 +5,12 @@ export class GameEngine {
   private lastTime: number = 0;
   private animationFrame: number = 0;
 
-  constructor() {
-    this.initDemoAgents();
+  constructor(initialAgents: Agent[] = []) {
+    if (initialAgents.length > 0) {
+      this.agents = initialAgents;
+    } else {
+      this.initDemoAgents();
+    }
   }
 
   private initDemoAgents() {
@@ -24,13 +28,7 @@ export class GameEngine {
 
   update() {
     this.agents.forEach(agent => {
-      // Random status changes
-      if (Math.random() < 0.005) {
-        const statuses: AgentStatus[] = ['idle', 'working', 'thinking', 'typing', 'reading'];
-        agent.status = statuses[Math.floor(Math.random() * statuses.length)];
-      }
-
-      // Random movement
+      // Random movement only (status comes from API)
       if (Math.random() < 0.02) {
         const directions = ['up', 'down', 'left', 'right'] as const;
         agent.direction = directions[Math.floor(Math.random() * 4)];
@@ -121,15 +119,16 @@ export class GameEngine {
     }
   }
 
-  private getStatusEmoji(status: AgentStatus): string {
-    const emojis: Record<AgentStatus, string> = {
+  private getStatusEmoji(status: string): string {
+    const emojis: Record<string, string> = {
       idle: '💤',
       working: '⚡',
       thinking: '🤔',
       waiting: '⏳',
       typing: '⌨️',
       reading: '📖',
+      sleeping: '😴',
     };
-    return emojis[status];
+    return emojis[status] || '❓';
   }
 }

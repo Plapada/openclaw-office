@@ -3,13 +3,50 @@
 import { useEffect, useRef, useState } from 'react';
 import { GameEngine } from '@/lib/gameEngine';
 
+interface Agent {
+  id: string;
+  name: string;
+  emoji: string;
+  color: string;
+  status: string;
+  x: number;
+  y: number;
+  direction: 'up' | 'down' | 'left' | 'right';
+}
+
 export default function OfficeCanvas() {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const engineRef = useRef<GameEngine | null>(null);
   const [zoom, setZoom] = useState(3);
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  // Fetch real agents from API
+  useEffect(() => {
+    async function fetchAgents() {
+      try {
+        const res = await fetch('/api/agents');
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setAgents(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch agents:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAgents();
+    
+    // Refresh every 10 seconds
+    const interval = setInterval(fetchAgents, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   useEffect(() => {
-    engineRef.current = new GameEngine();
+    if (agents.length === 0) return;
+
+    engineRef.current = new GameEngine(agents);
     
     const canvas = canvasRef.current;
     if (!canvas) return;
@@ -18,12 +55,8 @@ export default function OfficeCanvas() {
     if (!ctx) return;
 
     let animationId: number;
-    
 
     const gameLoop = () => {
-      
-      
-
       engineRef.current?.update();
       engineRef.current?.render(ctx, zoom);
 
@@ -35,7 +68,15 @@ export default function OfficeCanvas() {
     return () => {
       cancelAnimationFrame(animationId);
     };
-  }, [zoom]);
+  }, [agents, zoom]);
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-96 bg-[#0d1117] border-4 border-[#30363d] rounded-lg">
+        <div className="text-white text-xl">🤖 Carregando agentes...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="relative">

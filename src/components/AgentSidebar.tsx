@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 interface Agent {
   id: string;
@@ -10,15 +10,30 @@ interface Agent {
   status: string;
 }
 
-const DEMO_AGENTS: Agent[] = [
-  { id: '1', name: 'Pi', emoji: '🥧', color: '#ff6b6b', status: 'working' },
-  { id: '2', name: 'DevCraft', emoji: '🎨', color: '#4ecdc4', status: 'idle' },
-  { id: '3', name: 'Lion', emoji: '🦁', color: '#ffe66d', status: 'thinking' },
-  { id: '4', name: 'Master Planner', emoji: '📝', color: '#95e1d3', status: 'typing' },
-];
-
 export default function AgentSidebar() {
-  const [agents] = useState(DEMO_AGENTS);
+  const [agents, setAgents] = useState<Agent[]>([]);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    async function fetchAgents() {
+      try {
+        const res = await fetch('/api/agents');
+        const data = await res.json();
+        if (Array.isArray(data)) {
+          setAgents(data);
+        }
+      } catch (err) {
+        console.error('Failed to fetch agents:', err);
+      } finally {
+        setLoading(false);
+      }
+    }
+    fetchAgents();
+    
+    // Refresh every 10 seconds
+    const interval = setInterval(fetchAgents, 10000);
+    return () => clearInterval(interval);
+  }, []);
 
   const getStatusColor = (status: string) => {
     switch (status) {
@@ -27,9 +42,19 @@ export default function AgentSidebar() {
       case 'typing': return 'text-blue-400';
       case 'reading': return 'text-purple-400';
       case 'waiting': return 'text-orange-400';
+      case 'sleeping': return 'text-gray-400';
       default: return 'text-gray-400';
     }
   };
+
+  if (loading) {
+    return (
+      <div className="w-56 bg-[#161b22] border-l-4 border-[#30363d] p-4">
+        <h2 className="text-lg font-bold text-white mb-4">🤖 Agentes</h2>
+        <div className="text-gray-400">Carregando...</div>
+      </div>
+    );
+  }
 
   return (
     <div className="w-56 bg-[#161b22] border-l-4 border-[#30363d] p-4">
