@@ -18,13 +18,13 @@ export default function OfficeCanvas() {
     if (!ctx) return;
 
     let animationId: number;
-    let lastTime = 0;
+    
 
     const gameLoop = (time: number) => {
-      const deltaTime = (time - lastTime) / 1000;
-      lastTime = time;
+      
+      
 
-      engineRef.current?.update(deltaTime);
+      engineRef.current?.update();
       engineRef.current?.render(ctx, zoom);
 
       animationId = requestAnimationFrame(gameLoop);
