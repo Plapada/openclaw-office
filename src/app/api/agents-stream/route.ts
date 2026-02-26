@@ -5,6 +5,23 @@ const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZ
 
 export const dynamic = 'force-dynamic';
 
+interface SupabaseAgent {
+  id: string;
+  name: string;
+  status: string;
+}
+
+interface GameAgent {
+  id: string;
+  name: string;
+  emoji: string;
+  color: string;
+  status: string;
+  x: number;
+  y: number;
+  direction: 'up' | 'down' | 'left' | 'right';
+}
+
 function getEmoji(name: string): string {
   const emojis: Record<string, string> = {
     'Pi': '🥧', 'DevCraft': '🎨', 'Master Planner': '📝', 'Creator': '🧬',
@@ -19,15 +36,21 @@ function getColor(index: number): string {
   return colors[index] || '#888888';
 }
 
-async function fetchAgents() {
+async function fetchAgents(): Promise<GameAgent[]> {
   const res = await fetch(SUPABASE_URL, {
     headers: { 'apikey': SUPABASE_KEY, 'Authorization': `Bearer ${SUPABASE_KEY}` },
   });
-  const agents = await res.json();
-  return agents.slice(0, 8).map((agent: any, index: number) => ({
-    id: agent.id, name: agent.name, emoji: getEmoji(agent.name),
-    color: getColor(index), status: agent.status || 'idle',
-    x: 2 + (index % 4) * 4, y: 3 + Math.floor(index / 4) * 2, direction: 'down' as const,
+  const agents: SupabaseAgent[] = await res.json();
+  
+  return agents.slice(0, 8).map((agent, index) => ({
+    id: agent.id,
+    name: agent.name,
+    emoji: getEmoji(agent.name),
+    color: getColor(index),
+    status: agent.status || 'idle',
+    x: 2 + (index % 4) * 4,
+    y: 3 + Math.floor(index / 4) * 2,
+    direction: 'down' as const,
   }));
 }
 
@@ -38,11 +61,13 @@ export async function GET() {
       const agents = await fetchAgents();
       controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'init', agents })}\n\n`));
       
-      const interval = setInterval(async () => {
+      setInterval(async () => {
         try {
           const agents = await fetchAgents();
           controller.enqueue(encoder.encode(`data: ${JSON.stringify({ type: 'update', agents })}\n\n`));
-        } catch (err) { console.error('SSE error:', err); }
+        } catch (err) {
+          console.error('SSE error:', err);
+        }
       }, 3000);
     },
   });

@@ -1,4 +1,4 @@
-import { Agent, AgentStatus, TILE_SIZE } from './types';
+import { Agent, TILE_SIZE } from './types';
 
 export class GameEngine {
   private agents: Agent[] = [];
