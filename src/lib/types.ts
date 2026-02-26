@@ -1,13 +1,13 @@
 // Types for OpenClaw Office
 
-export type AgentStatus = 'idle' | 'working' | 'thinking' | 'waiting' | 'typing' | 'reading';
+export type AgentStatus = 'idle' | 'working' | 'thinking' | 'waiting' | 'typing' | 'reading' | 'sleeping';
 
 export interface Agent {
   id: string;
   name: string;
   emoji: string;
   color: string;
-  status: AgentStatus;
+  status: AgentStatus | string;
   x: number;
   y: number;
   targetX?: number;
